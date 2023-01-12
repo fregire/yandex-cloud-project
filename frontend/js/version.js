@@ -1,1 +1,1 @@
-const FRONTEND_VERSION='0.0.8';
+const FRONTEND_VERSION='0.1.0';
