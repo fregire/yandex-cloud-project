@@ -25,13 +25,13 @@ function initVersions(){
 
 initVersions();
 
-async function addAd(title, content, images) {
+async function addAd(author, title, content) {
     let response = await fetch(`${API_BASE_URL}/ads`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({images: images, text: content, title: title})
+        body: JSON.stringify({author: author, text: content, title: title})
     });
     let result = await response.json();
 
@@ -42,14 +42,18 @@ function submitAdsAddFormHandler(e) {
     e.preventDefault();
     const form = e.target;
     const formFields = form.elements;
-    const fieldsToClear = [formFields.title, formFields.text];
+    const fieldsToClear = [formFields.author, formFields.title, formFields.text];
+    const author = formFields.author.value; 
     const title = formFields.title.value;
     const content = formFields.text.value;
-    const images = formFields.images.value.split(",");
 
-    addAd(title, content, images)
-        .then((res) => {
-            let adItem = createAdItem(images, content, title);
+    if (!author || !title || !content){
+        return;
+    }
+
+    addAd(author, title, content)
+        .then((ad) => {
+            let adItem = createAdItem(ad.author,  ad.title, ad.text, ad.created_at);
             adsListElement.appendChild(adItem);
             fieldsToClear.forEach(field => {
                 field.value = "";
@@ -59,37 +63,27 @@ function submitAdsAddFormHandler(e) {
 
 adsAddForm.addEventListener("submit", submitAdsAddFormHandler);
 
-function createImages(images) {
-    let imagesContainer = document.createElement('div');
-    imagesContainer.classList.add("ads-item-images");
 
-    images.forEach(imageLink => {
-        let img = document.createElement('img');
-        img.src = 'placeholder.jpg';
-        img.title = imageLink;
-        img.width = 100;
-        img.height = 100;
-        imagesContainer.appendChild(img);
-    });
+function createAdItem(author, title, text, createdAt){
+    let container = document.createElement('li');
+    let titleEl = document.createElement('h2');
+    let authorEl = document.createElement('p');
+    let textEl = document.createElement('p');
+    let createdAtEl = document.createElement('i');
 
-    return imagesContainer;
-};
 
-function createAdItem(images, text, title){
-    let li = document.createElement('li');
-    let h2 = document.createElement('h2');
-    let p = document.createElement('p');
-    let imagesElements = createImages(images);
+    container.classList.add("ads-item");
+    titleEl.textContent = title;
+    textEl.textContent = text;
+    authorEl.textContent = author;
+    createdAtEl.textContent = createdAt;
 
-    li.classList.add("ads-item");
-    h2.textContent = title;
-    p.textContent = text;
+    container.appendChild(titleEl);
+    container.appendChild(authorEl);
+    container.appendChild(textEl);
+    container.appendChild(createdAtEl);
 
-    li.appendChild(imagesElements);
-    li.appendChild(h2);
-    li.appendChild(p);
-
-    return li;
+    return container;
 };   
 
 async function initAdsList() {
@@ -102,8 +96,10 @@ async function initAdsList() {
 }
 
 initAdsList().then((res) => {
+    res.sort((ad1, ad2) => new Date(ad1.created_at) - new Date(ad2.created_at));
+
     res.forEach(ad => {
-        let adItem = createAdItem(ad.images, ad.title, ad.text);
+        let adItem = createAdItem(ad.author, ad.title, ad.text, ad.created_at);
         adsListElement.appendChild(adItem);
         loader.classList.add('disabled');
     });

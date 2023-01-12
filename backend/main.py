@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,7 +32,7 @@ def ads(request: Request) -> List[Ad]:
 @router.post("/ads")
 async def add_ad(request: Request, ad: AddAd):
     repository: AdsRepository = request.app.ads_repository
-    repository.insert_ad(**ad.dict())
+    return repository.insert_ad(**ad.dict())
 
 
 def main():

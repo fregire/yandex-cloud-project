@@ -15,22 +15,36 @@
     </div>
     <h1>Объявления!!</h1>
     <ul class="ads-list">
-        <!-- <li class="ads-item">
-            <div class="ads-item-images">
-                <img src="placeholder.jpg" height="100" width="100" />
-            </div>
-            <h2 class="ads-item-title">Some title1</h2>
-            <p class="ads-item-text">Some text1</p>
-        </li> -->
+        <!-- 
+            <li class="ads-item">
+                <h2 class="ads-item-title">Some title1</h2>
+                <p class="ads-item-author">Author</p>
+                <p class="ads-item-text">Some text1</p>
+                <i class="ads-item-created-at"></i>
+            </li> 
+        -->
     </ul>        
 
     <div class="loader">
         <img src="loader.gif" width="50" height="50"/>
     </div>
     <form class="ads-add-form">
-        <input type="text" name="title">
-        <input type="text" name="text">
-        <input type="hidden" name="images" value="link1,link2">
+        <label>
+            Имя:
+            <input type="text" name="author">
+        </label>
+        <br>
+        <label>
+            Заголовок:
+            <input type="text" name="title">
+        </label>
+        <br>
+        <label>
+            Содержание объявления:
+            <textarea name="text" cols="30" rows="10"></textarea>
+        </label>
+        <br>
+        
         <button>Добавить объявление</button>
     </form>
     Hello, world

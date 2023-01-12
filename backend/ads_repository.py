@@ -5,14 +5,16 @@ import uuid
 import json
 from models import Ad
 from dotenv import load_dotenv
+import datetime
 
 _TABLE_NAME = 'series'
 _INITIAL_QUERY = '''
 CREATE table `{}` (
     `ad_id` String,
+    `author` String,
     `title` String,
     `text` String,
-    `images` Json,
+    `created_at` Datetime,
     PRIMARY KEY (`ad_id`)
 )
 '''.format(_TABLE_NAME)
@@ -37,14 +39,18 @@ class AdsRepository:
     def close(self):
         self._driver.stop(timeout=5)
     
-    def insert_ad(self, title: str, text: str, images: List[str]):
-        def callee(session):
+    def insert_ad(self, author: str, title: str, text: str):
+        def callee(session) -> Ad:
             generated_uuid = uuid.uuid4()
+            current_date = datetime.datetime.today()
+            current_date_formatted = current_date.strftime("%Y-%m-%dT%H:%M:%SZ")
             query = '''
-                INSERT INTO {} (ad_id, title, text, images)
-                VALUES ("{}", "{}", "{}", '{}');
-            '''.format(_TABLE_NAME, generated_uuid, title, text, json.dumps(images))
+                INSERT INTO {} (ad_id, author, title, text, created_at)
+                VALUES ("{}", "{}", "{}", '{}', DATETIME('{}'));
+            '''.format(_TABLE_NAME, generated_uuid, author, title, text, current_date_formatted)
             session.transaction().execute(query, commit_tx=True)
+
+            return Ad(ad_id=str(generated_uuid), author=author, text=text, title=title, created_at=current_date_formatted)
         
         return self._pool.retry_operation_sync(callee)
     
@@ -52,16 +58,18 @@ class AdsRepository:
         def callee(session):
             result: List[Ad] = []
             query = '''
-                SELECT ad_id, title, text, images FROM {};
+                SELECT ad_id, author, title, text, created_at FROM {};
             '''.format(_TABLE_NAME)
             query_result = session.transaction().execute(query)
 
             for row in query_result[0].rows:
+                print(row.created_at)
                 result.append(Ad(
                     ad_id=row.ad_id.decode(),
+                    author=row.author.decode(),
                     title=row.title.decode(),
                     text=row.text.decode(),
-                    images=json.loads(row.images)
+                    created_at=row.created_at
                 ))
             
             return result

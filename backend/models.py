@@ -1,17 +1,17 @@
 from typing import List
 from pydantic import BaseModel
-
+import datetime
 
 
 class Ad(BaseModel):
     ad_id: str
-    images: List[str]
+    author: str
     text: str
     title: str
-
+    created_at: datetime.datetime
 
 
 class AddAd(BaseModel):
-    images: List[str]
+    author: str
     text: str
     title: str
