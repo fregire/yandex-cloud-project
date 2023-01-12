@@ -11,6 +11,11 @@ from models import Ad, AddAd
 
 router = APIRouter()
 
+
+@router.get("/test")
+def test():
+    return "Hello, world"
+
 @router.get("/version")
 def app_version():
     with open(".version", "r") as f:
